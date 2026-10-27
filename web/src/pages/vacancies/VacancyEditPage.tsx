@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ export default function VacancyEditPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const originalSkillIds = useRef<number[]>([]);
 
   const { register, handleSubmit, control, setValue, watch, reset } =
     useForm<VacancyFormValues>({
@@ -36,13 +37,20 @@ export default function VacancyEditPage() {
         skills: [],
       },
     });
-  const { fields, append, remove } = useFieldArray({ control, name: "skills" });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "skills",
+    keyName: "_key",
+  });
 
   useEffect(() => {
     vacanciesApi
       .get(Number(id))
       .then((res) => {
         const v = res.data.vacancy;
+        originalSkillIds.current = v.skills.flatMap((skill) =>
+          skill.id == null ? [] : [skill.id],
+        );
         reset({
           role_title: v.role_title,
           culture_dimensions: v.culture_dimensions,
@@ -57,13 +65,22 @@ export default function VacancyEditPage() {
   const onSubmit = async (data: VacancyFormValues) => {
     setSubmitting(true);
     try {
+      const currentSkillIds = new Set(
+        data.skills.flatMap((skill) => (skill.id == null ? [] : [skill.id])),
+      );
+      const removedSkills = originalSkillIds.current
+        .filter((skillId) => !currentSkillIds.has(skillId))
+        .map((id) => ({ id, _destroy: true }));
+
       await vacanciesApi.update(Number(id), {
         role_title: data.role_title,
         culture_dimensions: data.culture_dimensions,
         competency_expectations: data.competency_expectations,
-        vacancy_skills_attributes: data.skills,
+        vacancy_skills_attributes: [...data.skills, ...removedSkills],
       });
       navigate("/vacancies");
+    } catch (err: any) {
+      console.error(err.response?.data);
     } finally {
       setSubmitting(false);
     }
@@ -100,7 +117,7 @@ export default function VacancyEditPage() {
         <div className="space-y-3">
           <Label>Expected skills</Label>
           {fields.map((field, index) => (
-            <div key={field.id} className="p-3 space-y-2 border rounded-lg">
+            <div key={field._key} className="p-3 space-y-2 border rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">
                   {watch(`skills.${index}.skill_label`)}
