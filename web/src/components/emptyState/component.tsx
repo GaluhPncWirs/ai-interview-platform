@@ -8,10 +8,12 @@ export function EmptyStateVacancy() {
         <Briefcase className="w-6 h-6 text-muted-foreground" />
       </div>
 
-      <h3 className="mt-4 text-base font-semibold">Belum ada lowongan</h3>
+      <h3 className="mt-4 text-base font-semibold">
+        There are no job openings yet
+      </h3>
 
       <p className="max-w-sm mt-1 text-sm text-muted-foreground">
-        Lowongan pekerjaan yang kamu buat akan ditampilkan di sini.
+        The job postings you create will be displayed here.
       </p>
     </div>
   );

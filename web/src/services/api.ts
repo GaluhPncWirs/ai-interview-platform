@@ -3,7 +3,7 @@ import { getStoredToken, clearToken } from "@/stores/authAtom";
 
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api/v1";
-const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL ?? "ws://localhost:3001";
+const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL ?? "ws://localhost:3000";
 
 export const WS_URL = WS_BASE_URL;
 
@@ -32,10 +32,10 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // if (error.response?.status === 401 || error.response?.status === 403) {
-    //   clearToken();
-    //   window.location.href = "/login";
-    // }
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      clearToken();
+      window.location.href = "/login";
+    }
     return Promise.reject(error);
   },
 );

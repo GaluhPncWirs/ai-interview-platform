@@ -25,11 +25,9 @@ export default function LoginPage() {
       const res = await authApi.login({ email, password });
       const token = res.data.token;
 
-      console.log("response", res);
-      console.log("token", token);
       saveToken(token);
       setAuth({ token });
-      // navigate("/assessments");
+      navigate("/assessments");
     } catch {
       setError("Invalid email or password.");
     } finally {
