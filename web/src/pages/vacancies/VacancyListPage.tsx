@@ -4,11 +4,9 @@ import { Button } from "@/components/ui/button";
 import { vacanciesApi } from "@/services/vacancies";
 import { Plus, Briefcase } from "lucide-react";
 import type { Vacancy } from "@/types";
-import {
-  EmptyStateVacancy,
-  LoadingStateVacancy,
-  VacancyCard,
-} from "@/components/cardVacancies/component";
+import { CardUi } from "@/components/cardUi/component";
+import { EmptyStateVacancy } from "@/components/emptyState/component";
+import { LoadingStateVacancy } from "@/components/loaderState/component";
 
 export default function VacancyListPage() {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
@@ -62,12 +60,30 @@ export default function VacancyListPage() {
         {/* Vacancy cards */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {vacancies.map((v) => (
-            <VacancyCard
+            <CardUi
               key={v.id}
               id={v.id}
-              roleTitle={v.role_title}
               onClick={() => navigate(`/vacancies/${v.id}/edit`)}
-            />
+              Icon={Briefcase}
+            >
+              <div className="mt-4 space-y-2">
+                <h3 className="text-base font-semibold leading-6 tracking-tight transition-colors line-clamp-2 min-h-12 group-hover:text-primary">
+                  {v.role_title}
+                </h3>
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span>Kelola detail lowongan</span>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between pt-3 mt-4 border-t border-border/70">
+                <span className="text-xs font-medium transition-opacity text-primary group-hover:opacity-100">
+                  Edit lowongan
+                </span>
+              </div>
+            </CardUi>
           ))}
         </div>
 
