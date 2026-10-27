@@ -1,0 +1,6 @@
+{
+    "conventionalCommits.scopes": [
+        "success create databse and migrate and seed database",
+        "fixed bug login account because wrong path API BASE URL at .env file"
+    ]
+}
