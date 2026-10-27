@@ -27,6 +27,13 @@ import {
 } from "lucide-react";
 import type { Assessment, Session } from "@/types";
 
+function getCandidateInviteUrl(session: Session) {
+  return new URL(
+    `/interview/${encodeURIComponent(session.invite_token)}`,
+    window.location.origin,
+  ).toString();
+}
+
 function SessionRow({
   session,
   index,
@@ -153,6 +160,7 @@ export default function AssessmentInvitePage() {
   const [newSessionCopied, setNewSessionCopied] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [candidateNameInput, setCandidateNameInput] = useState("");
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   const loadSessions = useCallback(async () => {
     const res = await assessmentsApi.getSessions(Number(id));
@@ -189,6 +197,7 @@ export default function AssessmentInvitePage() {
     setCreatingSession(true);
     setShowInviteDialog(false);
     setNewSession(null);
+    setInviteError(null);
     try {
       const res = await assessmentsApi.createSession(
         Number(id),
@@ -198,23 +207,37 @@ export default function AssessmentInvitePage() {
 
       setNewSession(created);
       setSessions((prev) => [created, ...prev]);
+    } catch {
+      setInviteError("Gagal membuat link undangan. Silakan coba lagi.");
     } finally {
       setCreatingSession(false);
     }
   };
 
-  const copyLink = (session: Session, id: number) => {
-    navigator.clipboard.writeText(session.invite_url);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+  const copyLink = async (session: Session, id: number) => {
+    try {
+      await navigator.clipboard.writeText(getCandidateInviteUrl(session));
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      setInviteError("Tidak dapat menyalin link. Silakan buka dan salin link secara manual.");
+    }
   };
 
-  const copyNewSessionLink = () => {
-    if (!newSession?.invite_url) return;
-    navigator.clipboard.writeText(newSession.invite_url);
-    setNewSessionCopied(true);
-    setTimeout(() => setNewSessionCopied(false), 2000);
+  const copyNewSessionLink = async () => {
+    if (!newSession) return;
+    try {
+      await navigator.clipboard.writeText(getCandidateInviteUrl(newSession));
+      setNewSessionCopied(true);
+      setTimeout(() => setNewSessionCopied(false), 2000);
+    } catch {
+      setInviteError("Tidak dapat menyalin link. Silakan buka dan salin link secara manual.");
+    }
   };
+
+  const newSessionInviteUrl = newSession
+    ? getCandidateInviteUrl(newSession)
+    : null;
 
   if (loading) {
     return (
@@ -266,6 +289,12 @@ export default function AssessmentInvitePage() {
         </div>
       </div>
 
+      {inviteError && (
+        <p role="alert" className="text-sm text-destructive">
+          {inviteError}
+        </p>
+      )}
+
       {/* Invite candidate dialog */}
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
         <DialogContent className="sm:max-w-sm">
@@ -316,9 +345,14 @@ export default function AssessmentInvitePage() {
               )}
             </p>
             <div className="flex items-center gap-2 px-3 py-2 bg-white border rounded-md">
-              <span className="flex-1 font-mono text-sm truncate text-muted-foreground">
-                {newSession.invite_url}
-              </span>
+              <a
+                href={newSessionInviteUrl ?? undefined}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 font-mono text-sm truncate text-primary underline"
+              >
+                {newSessionInviteUrl}
+              </a>
             </div>
             <Button
               variant="outline"
@@ -376,7 +410,7 @@ export default function AssessmentInvitePage() {
                   assessmentId={id!}
                   onCopy={(sid) => {
                     const s = sessions.find((x) => x.id === sid);
-                    if (s) copyLink(s, sid);
+                    if (s) void copyLink(s, sid);
                   }}
                   copiedId={copiedId}
                 />

@@ -7,6 +7,7 @@
         "improve reusable component",
         "add ui page sign Up",
         "fix error login use role user",
-        "fix error api"
+        "fix error api",
+        "fixed bug delete vacancy_skills_attributes"
     ]
 }
