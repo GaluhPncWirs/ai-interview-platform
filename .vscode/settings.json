@@ -8,6 +8,7 @@
         "add ui page sign Up",
         "fix error login use role user",
         "fix error api",
-        "fixed bug delete vacancy_skills_attributes"
+        "fixed bug delete vacancy_skills_attributes",
+        "fixed open link from admin"
     ]
 }
