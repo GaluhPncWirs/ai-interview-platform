@@ -1,6 +1,10 @@
 {
     "conventionalCommits.scopes": [
         "success create databse and migrate and seed database",
-        "fixed bug login account because wrong path API BASE URL at .env file"
+        "fixed bug login account because wrong path API BASE URL at .env file",
+        "Fix the responsiveness of the navbar at the smallest screen size by changing it to a hamburger menu",
+        "improve UI and UX",
+        "improve reusable component",
+        "add ui page sign Up"
     ]
 }
